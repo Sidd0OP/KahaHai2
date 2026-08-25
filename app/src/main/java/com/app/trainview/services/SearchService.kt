@@ -9,7 +9,7 @@ import retrofit2.http.Query
 interface SearchService {
 
     @GET("v1/lookup/search/trains")
-    suspend fun getTrainLiveStatus(
+    suspend fun getTrainInfo(
         @Query("q") query: String,
         @Query("limit") limit: Int = 20)
     : ApiResponse<List<SearchResultData>>
