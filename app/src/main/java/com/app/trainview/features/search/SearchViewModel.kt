@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.app.trainview.model.search.SearchResultData
 import com.app.trainview.network.RetrofitClient
 import com.app.trainview.services.SearchService
+import com.app.trainview.services.TrainService
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -18,18 +19,28 @@ import kotlin.time.Duration.Companion.milliseconds
 
 class SearchViewModel : ViewModel() {
 
+    //network
     val searchClient: SearchService = RetrofitClient.retrofit.create(SearchService::class.java)
+    val trainClient: TrainService = RetrofitClient.retrofit.create(TrainService::class.java)
 
+    //state and search and result data
     var searchQuery: String by mutableStateOf("");
     val searchResultDataList: SnapshotStateList<SearchResultData> = mutableStateListOf()
-
     var isSearching by mutableStateOf(false)
         private set
 
+    var isLoadingTrain by mutableStateOf(false)
+        private set
+
+    //coroutine for the async call
     private var searchJob: Job? = null
+    private var trainJob: Job? = null
 
     fun onSearchQueryEnter(query: String)
     {
+        //dont search while train is loading
+        if(isLoadingTrain)return
+
         searchQuery = query
         searchJob?.cancel()
 
@@ -67,6 +78,26 @@ class SearchViewModel : ViewModel() {
     fun onSearchResultTap(trainNumber: String)
     {
         Log.i("search", trainNumber)
+
+        trainJob?.cancel()
+
+        trainJob = viewModelScope.launch {
+            searchTrain(trainNumber = trainNumber)
+        }
+
+    }
+
+    private suspend fun searchTrain(trainNumber: String)
+    {
+        isLoadingTrain = true
+        try {
+            val response = trainClient.getTrainLiveStatus(number = trainNumber)
+
+        }catch (e : Exception){
+            Log.e("search", e.toString())
+        } finally {
+            isSearching = false
+        }
     }
 
 

@@ -1,7 +1,6 @@
 package com.app.trainview.services
 
 import com.app.trainview.model.ApiResponse
-import com.app.trainview.model.LiveTrain
 import com.app.trainview.model.search.SearchResultData
 import retrofit2.http.GET
 import retrofit2.http.Query
