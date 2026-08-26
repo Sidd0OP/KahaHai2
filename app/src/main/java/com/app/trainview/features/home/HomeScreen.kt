@@ -44,11 +44,10 @@ import com.app.trainview.ui.theme.TrainViewTheme
 @Composable
 fun HomeScreen(goToMap: () -> Unit, viewModel: SearchViewModel = viewModel()) {
 
-    val train by viewModel.cachedTrain.collectAsStateWithLifecycle()
-    LaunchedEffect(train) {
-        train?.let {
+    val data by viewModel.cachedTrain.collectAsStateWithLifecycle()
+    LaunchedEffect(data) {
+        data?.let {
             goToMap()
-            Log.i("compose", "went to map")
         }
     }
 

@@ -38,12 +38,12 @@ class MainActivity : ComponentActivity() {
                     slideInHorizontally(initialOffsetX = { it }) togetherWith
                             slideOutHorizontally(targetOffsetX = { -it / 3 })
                 },
-                // Standard button/gesture non-interactive pop
+
                 popTransitionSpec = {
                     slideInHorizontally(initialOffsetX = { -it / 3 }) togetherWith
                             slideOutHorizontally(targetOffsetX = { it })
                 },
-                // Interactive swipe progress tracking (Predictive Back)
+
                 predictivePopTransitionSpec = { progress ->
                     slideInHorizontally(
                         animationSpec = tween(),

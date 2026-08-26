@@ -12,6 +12,7 @@ import com.app.trainview.model.search.SearchResultData
 import com.app.trainview.model.train.LiveTrain
 import com.app.trainview.network.RetrofitClient
 import com.app.trainview.repository.LiveTrainRepository
+import com.app.trainview.repository.LiveTrainWithSearchData
 import com.app.trainview.services.SearchService
 import com.app.trainview.services.TrainService
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,9 +24,7 @@ import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
-class SearchViewModel
-@Inject
-constructor(private val repository: LiveTrainRepository) : ViewModel() {
+class SearchViewModel @Inject constructor(private val repository: LiveTrainRepository) : ViewModel() {
 
     //network
     val searchClient: SearchService = RetrofitClient.retrofit.create(SearchService::class.java)
@@ -40,7 +39,7 @@ constructor(private val repository: LiveTrainRepository) : ViewModel() {
     var isLoadingTrain by mutableStateOf(false)
         private set
 
-    val cachedTrain: StateFlow<LiveTrain?> = repository.cachedTrain
+    val cachedTrain: StateFlow<LiveTrainWithSearchData?> = repository.cacheData
 
     //coroutine for the async call
     private var searchJob: Job? = null
@@ -104,7 +103,9 @@ constructor(private val repository: LiveTrainRepository) : ViewModel() {
             val response = trainClient.getTrainLiveStatus(number = trainNumber)
 
             response.data?.let {
-                repository.update(response.data)
+                repository.setInitial(
+                    LiveTrainWithSearchData(liveTrain = it, trainNumber = trainNumber)
+                )
             }
 
         }catch (e : Exception){
