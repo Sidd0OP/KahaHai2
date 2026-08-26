@@ -34,9 +34,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.trainview.features.map.components.TrainInfoCard
 import com.app.trainview.features.map.components.TrainInfoLargeCard
 import com.app.trainview.model.train.LiveTrain
+import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.rememberCameraPositionState
 
@@ -67,7 +70,7 @@ fun MapScreenContent(
     onRefreshClick: () -> Unit
 ) {
     val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(LatLng(51.5074, -0.1278), 10f)
+        position = CameraPosition.fromLatLngZoom(LatLng(28.6139, 77.2090), 10f)
     }
 
     var isExpanded by remember { mutableStateOf(false) }
@@ -84,14 +87,21 @@ fun MapScreenContent(
         ) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
+                googleMapOptionsFactory = {
+                    GoogleMapOptions()
+                        .mapId("91c411314054a75ae0c329be")
+                },
                 uiSettings = MapUiSettings(
                     compassEnabled = false,
                     myLocationButtonEnabled = false,
                     zoomControlsEnabled = false,
                     mapToolbarEnabled = false
                 ),
-                cameraPositionState = cameraPositionState
-            )
+                cameraPositionState = cameraPositionState,
+                mapColorScheme = ComposeMapColorScheme.DARK
+            ) {
+
+            }
 
             Column(
                 modifier = Modifier
@@ -123,14 +133,18 @@ fun MapScreenContent(
                 when (isExpanded) {
                     true -> {
                         TrainInfoLargeCard(
-                            modifier =  Modifier.fillMaxWidth(),
+                            onClick = { isExpanded = false },
+                            modifier = Modifier.fillMaxWidth(),
                             trainName = train.trainName,
                             departureStation = train.train.source.name,
-                            arrivalStation = train.train.destination.name
+                            arrivalStation = train.train.destination.name,
+                            stations = train.route
                         )
                     }
+
                     false -> {
                         TrainInfoCard(
+                            onClick = { isExpanded = true },
                             modifier = Modifier.fillMaxWidth(),
                             trainName = train.trainName,
                             departureStation = train.train.source.name,
@@ -151,6 +165,6 @@ fun MapScreenContent(
 fun MapScreenPreview() {
     MapScreenContent(
         train = fakeLiveTrain(),
-        onRefreshClick = {  }
+        onRefreshClick = { }
     )
 }

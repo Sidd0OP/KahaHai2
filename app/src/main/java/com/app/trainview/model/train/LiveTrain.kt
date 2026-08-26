@@ -76,11 +76,15 @@ data class Station(
     val coachPosition: String,
     val lat: Double,
     val lng: Double,
-    val scheduledDeparture: String,
-    val departureDay: Double,
-    val actualDeparture: String,
-    val delayDeparture: Double,
-    val platform: String,
+    val scheduledArrival: String? = null,
+    val arrivalDay: Int? = null,
+    val scheduledDeparture: String? = null,
+    val departureDay: Int? = null,
+    val actualArrival: String? = null,
+    val actualDeparture: String? = null,
+    val delayArrival: Double? = null,
+    val delayDeparture: Double? = null,
+    val platform: String? = null,
     val distance: Double,
-    val speedToNextStationKmph: Double
+    val speedToNextStationKmph: Double? = null
 )

@@ -28,12 +28,14 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun TrainInfoCard(
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
     trainName: String = "New Delhi Bhopal Shatabdi",
     departureStation: String = "New Delhi",
     arrivalStation: String = "Rani Kamlap...",
 ) {
     Card(
+        onClick = onClick,
         modifier = modifier
             .fillMaxWidth()
             .wrapContentHeight(),
@@ -120,6 +122,7 @@ private fun StationChip(
 @Composable
 fun TrainInfoCardPreview() {
     TrainInfoCard(
+        onClick = {},
         trainName = "Rajdhani Express",
         departureStation = "New Delhi",
         arrivalStation = "Mumbai Central"
