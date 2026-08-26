@@ -1,6 +1,7 @@
 package com.app.trainview.features.home
 
 import android.annotation.SuppressLint
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,6 +16,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -26,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.trainview.R
 import com.app.trainview.features.search.RecentSearchItem
@@ -39,6 +43,14 @@ import com.app.trainview.ui.theme.TrainViewTheme
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun HomeScreen(goToMap: () -> Unit, viewModel: SearchViewModel = viewModel()) {
+
+    val train by viewModel.cachedTrain.collectAsStateWithLifecycle()
+    LaunchedEffect(train) {
+        train?.let {
+            goToMap()
+            Log.i("compose", "went to map")
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -83,7 +95,6 @@ fun HomeScreen(goToMap: () -> Unit, viewModel: SearchViewModel = viewModel()) {
                 )
             } else {
                 viewModel.searchResultDataList.forEach { data ->
-
                     RecentSearchItem(
                         trainNumber = data.number,
                         trainName = data.name,
@@ -94,9 +105,6 @@ fun HomeScreen(goToMap: () -> Unit, viewModel: SearchViewModel = viewModel()) {
 
                 }
             }
-
-
-
 
 
         }

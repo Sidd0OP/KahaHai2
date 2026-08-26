@@ -12,7 +12,7 @@ data class LiveTrain(
     val currentLocation: CurrentLocation,
     val previousHalt: Halt,
     val nextHalt: Halt,
-    val delayMinutes: Int,
+    val delayMinutes: Double,
     val route: List<Station>
 )
 
@@ -26,7 +26,7 @@ data class CurrentLocation(
     val distanceFromOriginKm: Double,
     val distanceFromLastStationKm: Double,
     val segmentProgress: Double,
-    val delayMinutes: Int,
+    val delayMinutes: Double,
     val stationName: String
 )
 
@@ -52,9 +52,9 @@ data class TrainDetails(
     val destination: StationLocation,
     val runDays: List<String>,
     val distance: Double,
-    val duration: Int,
+    val duration: Double,
     val avgSpeed: Double,
-    val maxSpeed: Int,
+    val maxSpeed: Double,
     val totalHalts: Int,
     val returnTrain: String,
     val coachPosition: String
@@ -77,10 +77,10 @@ data class Station(
     val lat: Double,
     val lng: Double,
     val scheduledDeparture: String,
-    val departureDay: Int,
+    val departureDay: Double,
     val actualDeparture: String,
-    val delayDeparture: Int,
+    val delayDeparture: Double,
     val platform: String,
-    val distance: Int,
+    val distance: Double,
     val speedToNextStationKmph: Double
 )

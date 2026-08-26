@@ -23,7 +23,7 @@ fun EntryProviderScope<Any>.navEntry(
 
     entry<Destination.Map> {
         MapScreen(goToHome = {
-
+            backStack.removeAt(backStack.lastIndex)
         })
     }
 }
