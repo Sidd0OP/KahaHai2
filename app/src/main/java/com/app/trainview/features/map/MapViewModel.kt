@@ -29,7 +29,7 @@ class MapViewModel @Inject constructor(
 
     val trainClient: TrainService = RetrofitClient.retrofit.create(TrainService::class.java)
 
-    //map train data
+    //live train data
     val liveTrainFLow: StateFlow<LiveTrainWithSearchData?> = trainRepository.cacheData
 
     // all trains for map

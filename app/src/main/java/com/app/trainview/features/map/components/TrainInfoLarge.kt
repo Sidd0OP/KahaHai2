@@ -16,6 +16,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -25,11 +26,16 @@ import com.app.trainview.model.train.Station
 fun TrainInfoLargeCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    trainName: String = "New Delhi Bhopal Shatabdi",
-    departureStation: String = "New Delhi",
-    arrivalStation: String = "Rani Kamlap...",
+    trainName: String = "Name",
+    departureStation: String = "dep",
+    arrivalStation: String = "arr",
     stations : List<Station> = listOf()
 ) {
+
+    val filteredStations = remember(stations) {
+        stations.filter { it.isHalt }
+    }
+
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -55,15 +61,18 @@ fun TrainInfoLargeCard(
                     arrivalStation = arrivalStation
                 )
             }
+
             items(
-                items = stations,
+                items = filteredStations,
                 key = { it.stationCode }
             ) { station ->
                 StationPill(
                     stationName = station.stationName,
                     platform = station.platform ?: "-",
-//                    scheduledTime = station.scheduledDeparture ?: station.scheduledArrival ?: "-",
-//                    actualTime = station.actualDeparture ?: station.actualArrival ?: "-",
+                    scheduledArrival = station.scheduledArrival ?: station.scheduledArrival ?: "-",
+                    actualArrival = station.actualArrival ?: station.actualArrival ?: "-",
+                    scheduledDeparture = station.scheduledDeparture ?: station.scheduledDeparture ?: "-",
+                    actualDeparture = station.actualDeparture ?: station.actualDeparture ?: "-",
                 )
             }
         }

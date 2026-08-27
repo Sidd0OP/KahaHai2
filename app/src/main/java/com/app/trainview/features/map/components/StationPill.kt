@@ -57,7 +57,8 @@ fun StationPill(
 
             //heading
             Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(6.dp)
             )
             {
                 Text(
@@ -84,77 +85,77 @@ fun StationPill(
             }
 
             Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Scheduled",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 10.sp,
-
-                        )
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Text(
-                            text = scheduledArrival,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "-",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = scheduledDeparture,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "Actual",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontSize = 10.sp,
-                    )
-
-                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp))  {
-                        Text(
-                            text = actualArrival,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = "-",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                        Text(
-                            text = actualDeparture,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 12.sp,
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-
-                }
-            }
+//            Row(
+//                modifier = Modifier.fillMaxWidth(),
+//                horizontalArrangement = Arrangement.SpaceBetween
+//            ) {
+//                Column(
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    Text(
+//                        text = "Scheduled",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                        fontSize = 10.sp,
+//
+//                        )
+//
+//                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+//                        Text(
+//                            text = scheduledArrival.toAmPmTime(),
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 12.sp,
+//                            color = MaterialTheme.colorScheme.onSurface
+//                        )
+//                        Text(
+//                            text = "-",
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 12.sp,
+//                            color = MaterialTheme.colorScheme.onSurface
+//                        )
+//                        Text(
+//                            text = scheduledDeparture.toAmPmTime(),
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 12.sp,
+//                            color = MaterialTheme.colorScheme.onSurface
+//                        )
+//                    }
+//
+//                }
+//
+//                Column(
+//                    horizontalAlignment = Alignment.CenterHorizontally
+//                ) {
+//                    Text(
+//                        text = "Actual",
+//                        style = MaterialTheme.typography.bodyMedium,
+//                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+//                        fontSize = 10.sp,
+//                    )
+//
+//                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp))  {
+//                        Text(
+//                            text = actualArrival.toAmPmTime(),
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 12.sp,
+//                            color = MaterialTheme.colorScheme.onSurface
+//                        )
+//                        Text(
+//                            text = "-",
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 12.sp,
+//                            color = MaterialTheme.colorScheme.onSurface
+//                        )
+//                        Text(
+//                            text = actualDeparture.toAmPmTime(),
+//                            fontWeight = FontWeight.Bold,
+//                            fontSize = 12.sp,
+//                            color = MaterialTheme.colorScheme.onSurface
+//                        )
+//                    }
+//
+//                }
+//            }
 
 
 
@@ -162,6 +163,18 @@ fun StationPill(
         }
     }
 }
+
+
+//fun String?.toAmPmTime(): String {
+//    if (this.isNullOrBlank()) return "-"
+//    return try {
+//        val formatter = java.time.format.DateTimeFormatter.ofPattern("HH:mm")
+//        val time = java.time.LocalTime.parse(this, formatter)
+//        time.format(java.time.format.DateTimeFormatter.ofPattern("hh:mm a"))
+//    } catch (e: Exception) {
+//        this
+//    }
+//}
 
 @Preview(showBackground = true)
 @Composable
