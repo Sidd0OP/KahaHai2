@@ -1,7 +1,9 @@
 package com.app.trainview.features.map
 
-import android.util.Log
+import android.location.Location
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.Button
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -25,7 +28,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -41,10 +43,10 @@ import com.app.trainview.model.train.LiveTrain
 import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PinConfig
 import com.google.maps.android.compose.AdvancedMarker
 import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -57,34 +59,55 @@ fun MapScreen(
 ) {
     val trainFlow by viewModel.liveTrainFLow.collectAsState()
     val mapTrainFlow by viewModel.mapTrains.collectAsState()
+    val userLocationFlow by viewModel.userLocation.collectAsState()
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted) {
+            viewModel.startLocationUpdates()
+        }
+    }
 
     BackHandler {
-        viewModel.clearCachedTrain()
+        viewModel.resetForNewRequest()
         goToHome()
     }
 
     trainFlow?.let {
         MapScreenContent(
+            userLocation = userLocationFlow,
             train = it.liveTrain,
             mapTrains = mapTrainFlow,
-            onRefreshClick = { viewModel.updateData() }
+            onRefreshClick = { viewModel.updateData() },
+            amInsideTrainClick = {
+                if (!viewModel.hasLocationPermission()) {
+                    launcher.launch(android.Manifest.permission.ACCESS_FINE_LOCATION)
+                } else {
+                    viewModel.startLocationUpdates()
+                }
+
+            },
+            amNotInsideTrainClick = { viewModel.stopLocationUpdates() }
         )
     }
 }
 
 @Composable
 fun MapScreenContent(
+    userLocation: Location?,
     train: LiveTrain,
     mapTrains: List<LiveMapTrain>,
-    onRefreshClick: () -> Unit
+    onRefreshClick: () -> Unit,
+    amInsideTrainClick: () -> Unit,
+    amNotInsideTrainClick: () -> Unit,
 ) {
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(28.6139, 77.2090), 10f)
     }
 
     var isExpanded by remember { mutableStateOf(false) }
-
-
+    var isInsideTrain by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -111,25 +134,77 @@ fun MapScreenContent(
                 cameraPositionState = cameraPositionState,
                 mapColorScheme = ComposeMapColorScheme.DARK
             ) {
-                mapTrains.forEach {
-                    Log.i("marker", "draw marer")
 
-                    key(it.trainNumber){
-                        val markerState = remember(it.trainNumber) {
-                            MarkerState(position = LatLng(it.currentLat, it.currentLng))
+
+                //user marker if inside train
+                if (isInsideTrain) {
+
+                    userLocation?.let { location ->
+                        val userMarkerState = remember {
+                            MarkerState(position = LatLng(location.latitude, location.longitude))
                         }
 
-                        LaunchedEffect(it.currentLat, it.currentLng) {
-                            markerState.position = LatLng(it.currentLat, it.currentLng)
+                        LaunchedEffect(location.latitude, location.longitude) {
+                            userMarkerState.position = LatLng(location.latitude, location.longitude)
                         }
 
+                        val userPinConfig = remember {
+                            PinConfig.builder()
+                                .setBackgroundColor(android.graphics.Color.GREEN)
+                                .build()
+                        }
                         AdvancedMarker(
-                            state = markerState,
-                            title = "${it.currentLat}${it.currentLng}",
-                            snippet = train.trainNumber
+                            state = userMarkerState,
+                            title = "You",
+                            pinConfig = userPinConfig
+                        )
+                    }
+                } else {
+
+                    train.currentLocation.let { currentLocation ->
+                        val userMarkerState = remember {
+                            MarkerState(
+                                position =LatLng(currentLocation.coordinates.lat,currentLocation.coordinates.lng)
+                            )
+                        }
+
+                        LaunchedEffect(currentLocation.coordinates.lat, currentLocation.coordinates.lng) {
+                            userMarkerState.position = LatLng(currentLocation.coordinates.lat, currentLocation.coordinates.lng)
+                        }
+
+                        val userPinConfig = remember {
+                            PinConfig.builder()
+                                .setBackgroundColor(android.graphics.Color.YELLOW)
+                                .build()
+                        }
+                        AdvancedMarker(
+                            state = userMarkerState,
+                            title = train.trainName,
+                            snippet = "Loc ${train.currentLocation.coordinates.lat} ${train.currentLocation.coordinates.lng} No ${train.trainNumber}",
+                            pinConfig = userPinConfig
                         )
                     }
                 }
+
+                //markers for map trains
+                mapTrains.filter { !it.trainNumber.equals(train.trainNumber) }
+                    .forEach {
+                        key(it.trainNumber) {
+                            val markerState = remember(it.trainNumber) {
+                                MarkerState(position = LatLng(it.currentLat, it.currentLng))
+                            }
+
+                            LaunchedEffect(it.currentLat, it.currentLng) {
+                                markerState.position = LatLng(it.currentLat, it.currentLng)
+                            }
+
+                            AdvancedMarker(
+                                state = markerState,
+                                title = it.trainName,
+                                snippet = "Loc ${it.currentLng} ${it.currentLng} No ${it.trainNumber}"
+                            )
+                        }
+                    }
             }
 
             Column(
@@ -139,9 +214,21 @@ fun MapScreenContent(
                     .windowInsetsPadding(WindowInsets.navigationBars)
                     .padding(16.dp)
                     .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
+                horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+
+                Button(
+                    onClick = {
+                        if (isInsideTrain) {
+                            amNotInsideTrainClick()
+                        } else {
+                            amInsideTrainClick()
+                        }
+                        isInsideTrain = !isInsideTrain
+                    }
+                ) {}
+
                 SmallFloatingActionButton(
                     onClick = onRefreshClick,
                     shape = CircleShape,
@@ -158,6 +245,7 @@ fun MapScreenContent(
                         contentDescription = "Refresh"
                     )
                 }
+
 
                 when (isExpanded) {
                     true -> {
@@ -193,8 +281,11 @@ fun MapScreenContent(
 @Composable
 fun MapScreenPreview() {
     MapScreenContent(
+        userLocation = null,
         train = fakeLiveTrain(),
         mapTrains = listOf(),
-        onRefreshClick = { }
+        onRefreshClick = { },
+        amInsideTrainClick = { },
+        amNotInsideTrainClick = { }
     )
 }

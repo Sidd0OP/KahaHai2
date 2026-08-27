@@ -21,18 +21,22 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun TrainInfoCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    trainName: String = "New Delhi Bhopal Shatabdi",
+    trainName: String = "Bhopal Shatabdi 12001",
     departureStation: String = "New Delhi",
-    arrivalStation: String = "Rani Kamlap...",
+    departureTime: String = "20 Nov, 11:59 PM",
+    arrivalStation: String = "Rani Ka...",
+    arrivalTime: String = "20 Nov, 11:59 PM",
 ) {
     Card(
         onClick = onClick,
@@ -41,55 +45,103 @@ fun TrainInfoCard(
             .wrapContentHeight(),
         shape = RoundedCornerShape(40.dp),
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
+            containerColor = Color(0xFF83BCFF) // Light blue card background
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             // Train name
             Text(
                 text = trainName,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = Color.Black,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Station row
             Row(
                 modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Departure station
-                StationChip(
-                    stationName = departureStation,
-                    modifier = Modifier.weight(1f)
-                )
+                // Departure station pill
+                Surface(
+                    shape = RoundedCornerShape(40.dp),
+                    color = Color.White,
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = departureStation,
+                            color = Color.Black,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = departureTime,
+                            color = Color.Black,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
 
-                // Arrow
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "to",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 8.dp)
-                )
+                // Arrow icon in black circle
+                Surface(
+                    shape = RoundedCornerShape(32.dp),
+                    color = Color.Black,
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        contentDescription = "Direction",
+                        tint = Color.White,
+                        modifier = Modifier.padding(6.dp),
+                    )
+                }
 
-                // Arrival station
-                StationChip(
-                    stationName = arrivalStation,
-                    modifier = Modifier.weight(1f)
-                )
+                // Arrival station pill
+                Surface(
+                    shape = RoundedCornerShape(40.dp),
+                    color = Color.White,
+                ) {
+                    Column(
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                    ) {
+                        Text(
+                            text = arrivalStation,
+                            color = Color.Black,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = arrivalTime,
+                            color = Color.Black,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
             }
         }
     }
 }
+
 
 @Composable
 private fun StationChip(
