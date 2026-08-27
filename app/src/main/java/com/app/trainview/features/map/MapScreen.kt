@@ -1,5 +1,6 @@
 package com.app.trainview.features.map
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,8 +21,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,14 +36,17 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.app.trainview.features.map.components.TrainInfoCard
 import com.app.trainview.features.map.components.TrainInfoLargeCard
+import com.app.trainview.model.train.LiveMapTrain
 import com.app.trainview.model.train.LiveTrain
 import com.google.android.gms.maps.GoogleMapOptions
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.AdvancedMarker
 import com.google.maps.android.compose.ComposeMapColorScheme
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 
 
@@ -50,6 +56,7 @@ fun MapScreen(
     viewModel: MapViewModel = viewModel()
 ) {
     val trainFlow by viewModel.liveTrainFLow.collectAsState()
+    val mapTrainFlow by viewModel.mapTrains.collectAsState()
 
     BackHandler {
         viewModel.clearCachedTrain()
@@ -59,6 +66,7 @@ fun MapScreen(
     trainFlow?.let {
         MapScreenContent(
             train = it.liveTrain,
+            mapTrains = mapTrainFlow,
             onRefreshClick = { viewModel.updateData() }
         )
     }
@@ -67,6 +75,7 @@ fun MapScreen(
 @Composable
 fun MapScreenContent(
     train: LiveTrain,
+    mapTrains: List<LiveMapTrain>,
     onRefreshClick: () -> Unit
 ) {
     val cameraPositionState = rememberCameraPositionState {
@@ -74,6 +83,8 @@ fun MapScreenContent(
     }
 
     var isExpanded by remember { mutableStateOf(false) }
+
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -100,7 +111,25 @@ fun MapScreenContent(
                 cameraPositionState = cameraPositionState,
                 mapColorScheme = ComposeMapColorScheme.DARK
             ) {
+                mapTrains.forEach {
+                    Log.i("marker", "draw marer")
 
+                    key(it.trainNumber){
+                        val markerState = remember(it.trainNumber) {
+                            MarkerState(position = LatLng(it.currentLat, it.currentLng))
+                        }
+
+                        LaunchedEffect(it.currentLat, it.currentLng) {
+                            markerState.position = LatLng(it.currentLat, it.currentLng)
+                        }
+
+                        AdvancedMarker(
+                            state = markerState,
+                            title = "${it.currentLat}${it.currentLng}",
+                            snippet = train.trainNumber
+                        )
+                    }
+                }
             }
 
             Column(
@@ -165,6 +194,7 @@ fun MapScreenContent(
 fun MapScreenPreview() {
     MapScreenContent(
         train = fakeLiveTrain(),
+        mapTrains = listOf(),
         onRefreshClick = { }
     )
 }

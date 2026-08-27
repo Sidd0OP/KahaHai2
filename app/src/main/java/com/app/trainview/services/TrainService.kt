@@ -26,7 +26,7 @@ interface TrainService {
 
 
 
-    @GET("/v1//legacy/trains/live-map")
+    @GET("/v1/legacy/trains/live-map")
     suspend fun getAllTrainMapPosition(): ApiResponse<List<LiveMapTrain>>
 
 }
